@@ -16,10 +16,11 @@ jobs:
           SRC: "https://www.psoe.es/media-content/2026/11/PROGRAMAPSOE29N26.pdf"
           NOMBRE: "del PSOE"
         run: |
-          set -e
+          set -ex
           UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
-          curl -fsSL -A "$UA" -o "$PDF" "$SRC"
-          head -c 5 "$PDF" | grep -q '%PDF'
+          curl -sSL -A "$UA" -H "Accept: application/pdf,*/*" -o "$PDF" -w "HTTP %{http_code} %{content_type} %{size_download}\n" "$SRC"
+          ls -l "$PDF"
+          if ! head -c 5 "$PDF" | grep -q '%PDF'; then head -c 600 "$PDF"; exit 1; fi
           B=https://raw.githubusercontent.com/gonzalomendo-commits/programa-pp-2026/main
           curl -fsSL -o pdf.min.js $B/pdf.min.js
           curl -fsSL -o pdf.worker.min.js $B/pdf.worker.min.js
